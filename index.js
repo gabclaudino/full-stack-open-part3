@@ -25,6 +25,7 @@ let persons = [
     }
 ]
 
+app.use(express.static('build'))
 app.use(express.json())
 morgan.token('body', (req, res) => {
     if (req.method === 'POST')
