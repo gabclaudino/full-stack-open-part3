@@ -91,6 +91,13 @@ app.post('/api/persons', (request, response) => {
     return response.json(persons)
 })
 
+// DELETE
+app.delete('/api/persons/:id', (request, response) => {
+    const id = Number(request.params.id)
+    persons = persons.filter(p => p.id !== id)
+
+    response.status(204).end()
+})
 
 const unknownEndpoint = (request, response) => {
     response.status(404).send({ error: 'unknown endpoint' })
