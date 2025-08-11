@@ -27,13 +27,15 @@ app.get('/api/persons', (request, response) => {
 })
 
 app.get('/info', (request, response) => {
-    const currenteDate = new Date()
-    return response.send(`
-        <h1>Phonebook has info for ${Person.find({}).then(persons => {
-        response.json(persons.length)
-    })} people</h1>
-        ${currenteDate.toString()}
+    const currentDate = new Date()
+
+    Person.countDocuments({})
+        .then(count => {
+            response.send(`
+        <h1>Phonebook has info for ${count} people</h1>
+        <p>${currentDate.toString()}</p>
         `)
+        })
 })
 
 app.get('/api/persons/:id', (request, response) => {
