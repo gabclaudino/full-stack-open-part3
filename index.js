@@ -29,7 +29,9 @@ app.get('/api/persons', (request, response) => {
 app.get('/info', (request, response) => {
     const currenteDate = new Date()
     return response.send(`
-        <h1>Phonebook has info for ${Person.length} people</h1>
+        <h1>Phonebook has info for ${Person.find({}).then(persons => {
+        response.json(persons.length)
+    })} people</h1>
         ${currenteDate.toString()}
         `)
 })
