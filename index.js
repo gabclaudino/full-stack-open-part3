@@ -54,16 +54,16 @@ app.get('/api/persons/:id', (request, response, next) => {
 })
 
 // POST
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response, next) => {
 
     const body = request.body
 
-    if (!body.name) {
-        return response.status(400).json({ error: 'name missing' })
-    }
-    else if (!body.number) {
-        return response.status(400).json({ error: 'number missing' })
-    }
+    // if (!body.name) {
+    //     return response.status(400).json({ error: 'name missing' })
+    // }
+    // else if (!body.number) {
+    //     return response.status(400).json({ error: 'number missing' })
+    // }
     // else if (Person.find(p => p.name === body.name)) {
     //     return response.status(400).json({ error: 'name was already added to the phonebook' })
     // }
@@ -73,12 +73,14 @@ app.post('/api/persons', (request, response) => {
         number: `${body.number}`,
     })
 
-    person.save().then(savedPerson => {
-        console.log(`added ${savedPerson.name} number ${savedPerson.number} to phonebook`)
-        Person.find({}).then(allPersons => {
-            response.json(allPersons)
+    person.save()
+        .then(savedPerson => {
+            console.log(`added ${savedPerson.name} number ${savedPerson.number} to phonebook`)
+            Person.find({}).then(allPersons => {
+                response.json(allPersons)
+            })
         })
-    })
+        .catch(error => next(error))
 })
 
 // DELETE
@@ -92,14 +94,13 @@ app.delete('/api/persons/:id', (request, response, next) => {
 
 // PUT
 app.put('/api/persons/:id', (request, response, next) => {
-    const body = request.body
 
-    const person = {
-        name: body.name,
-        number: body.number,
-    }
+    const { name, number } = request.body
 
-    Person.findByIdAndUpdate(request.params.id, person, { new: true })
+    Person.findByIdAndUpdate(request.params.id,
+        { name, number },
+        { new: true, runValidators: true, context: 'query' }
+    )
         .then(updatedPerson => {
             response.json(updatedPerson)
         })
@@ -118,6 +119,8 @@ const errorHandler = (error, request, response, next) => {
 
     if (error.name === 'CastError') {
         return response.status(400).send({ error: 'malformatted id' })
+    } else if (error.name === 'ValidationError') {
+        return response.status(400).json({ error: error.message })
     }
 
     next(error)
